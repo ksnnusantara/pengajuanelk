@@ -2,17 +2,15 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Cari Data HP – NPK (Read-Only)</title>
+  <title>Angsuran Berlangsung Elektronik </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Tailwind CDN -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          colors: {
-            gold: { 500: '#d4af37', 600: '#b8941f' }
-          },
+          colors: { gold: { 500: '#d4af37', 600: '#b8941f' } },
           fontFamily: { poppins: ['Poppins', 'sans-serif'] }
         }
       }
@@ -20,63 +18,45 @@
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Poppins', sans-serif; }
-    .badge { @apply px-2 py-1 rounded-full text-xs font-semibold border; }
+    body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg,#fff,#fffef0); }
+    .badge { padding:.25rem .5rem; border-radius:9999px; font-size:.75rem; font-weight:600; border:1px solid rgba(0,0,0,.12); }
+    .masa-cicilan-active { color:#f59e0b; font-weight:600; }
+    .masa-cicilan-complete { color:#10b981; font-weight:600; }
+    .whatsapp-link { color:#25D366; text-decoration:none; }
+    .whatsapp-link:hover { text-decoration:underline; }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
+  <!-- Loading -->
+  <div id="loading" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl p-6 shadow-xl text-center">
+      <div class="w-12 h-12 border-4 border-slate-200 border-t-gold-500 rounded-full animate-spin mx-auto mb-3"></div>
+      <div class="text-sm text-slate-600">Memuat data…</div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden px-4 py-2 rounded-lg bg-slate-900 text-white text-sm shadow-lg"></div>
+
   <!-- Header -->
-  <header class="bg-white shadow-sm">
+  <header class="bg-white shadow-sm sticky top-0 z-10">
     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <h1 class="text-lg md:text-2xl font-semibold">
-        <span class="text-gold-600"></span>Pencarian Pengajuan Elektronik (NPK)
-      </h1>
-      <div class="flex gap-2">
-        <!-- Tombol Kembali -->
-        <button onclick="window.history.back()"
-                class="px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-100 text-sm">
-          ⬅ Kembali
-        </button>
-        <!-- Tombol Menu Utama -->
-        <button onclick="goMenuUtama()"
-                class="px-3 py-1.5 rounded-lg bg-gold-500 hover:bg-gold-600 text-white text-sm">
-          🏠 Menu Utama
-        </button>
+      <h1 class="text-lg md:text-2xl font-semibold">Angsuran Berlangsung Elektronik : <b id="npkLabel">-</b></h1>
+      <div class="flex items-center gap-2">
+        <span id="loggedAs" class="text-sm text-slate-500 hidden"></span>
+        <a href="index.html" class="px-3 py-1.5 rounded-lg bg-gold-500 hover:bg-gold-600 text-white text-sm">🏠 Menu Utama</a>
       </div>
     </div>
   </header>
 
   <!-- Main -->
   <main class="max-w-6xl mx-auto px-4 py-6">
-    <!-- Form Cari -->
+    <!-- Info -->
     <section class="bg-white rounded-2xl shadow p-4 md:p-6">
-      <form id="formCari" class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
-        <div>
-          <label class="block text-sm font-medium mb-1">NPK</label>
-          <input id="npkCari" type="text" required placeholder="Masukkan NPK..."
-                 class="w-full border rounded-xl px-3 py-2 focus:ring-2 focus:ring-gold-500 outline-none">
-        </div>
-        <div class="flex gap-2">
-          <button type="submit" class="px-4 py-2 rounded-xl bg-gold-500 text-white hover:bg-gold-600">Cari</button>
-          <button type="button" id="btnReset" class="px-4 py-2 rounded-xl border border-slate-300 hover:bg-slate-50">Reset</button>
-        </div>
-        <div class="text-sm text-slate-500 md:text-right" id="countRows"></div>
-      </form>
-      <p id="infoCari" class="text-sm text-slate-500 mt-2 hidden"></p>
-    </section>
-
-    <!-- Hasil -->
-    <section class="bg-white rounded-2xl shadow p-4 md:p-6 mt-6">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold">Hasil Pencarian</h2>
-        <div class="text-sm text-slate-500">
-          <span class="inline-flex items-center">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Pengajuan terbaru di bawah
-          </span>
+        <div>
         </div>
+        <div id="countRows" class="text-sm text-slate-500"></div>
       </div>
       <div class="overflow-x-auto">
         <table class="min-w-full border border-slate-200 rounded-xl overflow-hidden" id="tblData">
@@ -86,15 +66,14 @@
               <th class="px-2 py-2 text-left">ID</th>
               <th class="px-2 py-2 text-left">Tanggal</th>
               <th class="px-2 py-2 text-left">NPK</th>
-              <th class="px-2 py-2 text-left">No. Telp</th>
               <th class="px-2 py-2 text-left">Nama</th>
+              <th class="px-2 py-2 text-left">No. Telp</th>
               <th class="px-2 py-2 text-left">Instalasi</th>
               <th class="px-2 py-2 text-left">Cicilan</th>
               <th class="px-2 py-2 text-left">Tipe HP</th>
               <th class="px-2 py-2 text-left">Alamat Kirim</th>
               <th class="px-2 py-2 text-left">Keterangan</th>
               <th class="px-2 py-2 text-left">Status</th>
-              <th class="px-2 py-2 text-left">Pengajuan</th>
               <th class="px-2 py-2 text-left">Masa Cicilan</th>
             </tr>
           </thead>
@@ -104,230 +83,144 @@
     </section>
   </main>
 
-  <!-- Toast -->
-  <div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 hidden px-4 py-2 rounded-lg bg-slate-900 text-white text-sm shadow-lg"></div>
-  <!-- Loading -->
-  <div id="loading" class="fixed inset-0 bg-black/30 hidden items-center justify-center">
-    <div class="bg-white rounded-xl p-4 shadow">
-      <div class="w-6 h-6 border-4 border-slate-200 border-t-gold-500 rounded-full animate-spin mx-auto"></div>
-    </div>
-  </div>
-
   <script>
     // ===== KONFIG =====
-    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbzsKPfaEmUUYkZtaRA_pLJZavj2M9Eqh-nu7c2nGQJ86luYzbckhDM5G7FnGdHFhZEX/exec';
+    const ENDPOINT = 'https://script.google.com/macros/s/AKfycbxHylq0kuwja-7FQgHwYas-bh9GUUKChEPZ6stylR37gBWtqyFDKe7OsZCov2aoUmPi/exec';
 
     // ===== Utils =====
-    const $ = sel => document.querySelector(sel);
-    const showLoading = (b) => { $('#loading').style.display = b ? 'flex' : 'none'; };
+    const $ = (sel) => document.querySelector(sel);
+    const showLoading = (b) => { const el = $('#loading'); b ? (el.style.display='flex') : (el.style.display='none'); };
     const toast = (msg, ok=true) => {
       const t = $('#toast'); t.textContent = msg;
       t.className = "fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-sm shadow-lg " + (ok ? "bg-gold-500 text-white" : "bg-rose-600 text-white");
       t.style.opacity = 1; t.style.display = 'block';
-      setTimeout(()=>{ t.style.opacity = 0; setTimeout(()=>t.style.display='none', 300) }, 1800);
+      setTimeout(()=>{ t.style.opacity = 0; setTimeout(()=>t.style.display='none', 300) }, 2000);
     };
     const esc = (s) => (s ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    function getParam(name){ const u = new URLSearchParams(window.location.search); return u.get(name) || ''; }
 
-    // ====== NAV: Menu Utama langsung buka pilihan di index.html ======
-    function goMenuUtama(){
+    // ===== Username (NPK) dari sesi =====
+    function getLoggedUsername(){
+      const fromParam = getParam('user')?.trim();
+      if (fromParam) return fromParam;
       try {
-        // Flag untuk memaksa index.html menampilkan pilihan angsuran
-        sessionStorage.setItem('forceChoice', '1');
-      } catch (e) { /* ignore */ }
-      // Gunakan anchor agar bisa di-scroll ke area menu kalau ada
-      window.location.href = 'index.html#menu-angsuran';
-    }
-    // (Di index.html: saat DOMContentLoaded, cek:
-    // const force = sessionStorage.getItem('forceChoice');
-    // if (force === '1') { showChoiceMenu(); sessionStorage.removeItem('forceChoice'); }
-    // Pastikan showChoiceMenu() menampilkan kartu pilihan Angsuran HP/Reguler.)
-
-    // ===== Fungsi tanggal & cicilan =====
-    function monthDiff(d1, d2) {
-      let months;
-      months = (d2.getFullYear() - d1.getFullYear()) * 12;
-      months -= d1.getMonth();
-      months += d2.getMonth();
-      return months <= 0 ? 0 : months;
-    }
-    function parseDate(dateStr) {
-      if (!dateStr) return null;
-      const parts = dateStr.split('/');
-      if (parts.length !== 3) return null;
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const year = parseInt(parts[2], 10);
-      return new Date(year, month, day);
-    }
-    function addMonths(date, months) {
-      const result = new Date(date);
-      result.setMonth(result.getMonth() + months);
-      return result;
-    }
-    function formatDate(date) {
-      if (!date) return '';
-      const day = date.getDate().toString().padStart(2, '0');
-      const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
+        const ss = sessionStorage.getItem('username');
+        if (ss) return ss.trim();
+      } catch(_) {}
+      return '';
     }
 
-    // ===== Proses data: masa cicilan & nomor pengajuan =====
-    function processDataForMasaCicilan(data) {
-      const groupedByNpk = {};
-      data.forEach((row, index) => {
-        const npk = row.npk;
-        if (!groupedByNpk[npk]) groupedByNpk[npk] = [];
-        groupedByNpk[npk].push({...row, index});
-      });
-
-      const latestOkByNpk = {};
-      Object.keys(groupedByNpk).forEach(npk => {
-        const rows = groupedByNpk[npk];
-        const okRows = rows.filter(r => r.status && r.status.toUpperCase() === 'OK');
-        if (okRows.length > 0) {
-          okRows.sort((a, b) => parseDate(b.tanggal) - parseDate(a.tanggal));
-          for (const row of okRows) {
-            const startDate = parseDate(row.tanggal);
-            const cicilanMonths = parseInt(row.cicilan) || 0;
-            const today = new Date();
-            if (startDate && cicilanMonths > 0) {
-              const endDate = addMonths(startDate, cicilanMonths);
-              if (endDate >= today) { latestOkByNpk[npk] = row; break; }
-            }
-          }
-        }
-      });
-
-      const result = [];
-      Object.keys(groupedByNpk).forEach(npk => {
-        const rows = groupedByNpk[npk];
-        rows.sort((a, b) => parseDate(a.tanggal) - parseDate(b.tanggal));
-        rows.forEach((row, idx) => {
-          const status = (row.status || '').toUpperCase();
-          const latestOk = latestOkByNpk[npk];
-          if (status === 'OK') {
-            const startDate = parseDate(row.tanggal);
-            const cicilanMonths = parseInt(row.cicilan) || 0;
-            if (startDate && cicilanMonths > 0) {
-              const endDate = addMonths(startDate, cicilanMonths);
-              const formattedEndDate = formatDate(endDate);
-              if (latestOk && latestOk.index === row.index) {
-                result.push({ ...row, masaCicilanDisplay: `Masih ada angsuran sampai ${formattedEndDate}`, endDate, pengajuanDisplay: `Pengajuan ${idx + 1}` });
-              } else {
-                result.push({ ...row, masaCicilanDisplay: `Selesai tgl ${formattedEndDate}`, endDate, pengajuanDisplay: `Pengajuan ${idx + 1}` });
-              }
-            } else {
-              result.push({ ...row, masaCicilanDisplay: '-', pengajuanDisplay: `Pengajuan ${idx + 1}` });
-            }
-          } else {
-            result.push({ ...row, masaCicilanDisplay: '-', pengajuanDisplay: `Pengajuan ${idx + 1}` });
-          }
-        });
-      });
-
-      return result.sort((a, b) => parseDate(a.tanggal) - parseDate(b.tanggal));
+    // ===== Date helpers =====
+    function fmtDDMMYYYY(d){
+      const dd=String(d.getDate()).padStart(2,'0');
+      const mm=String(d.getMonth()+1).padStart(2,'0');
+      const yy=d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
     }
-
-    // Phone helpers
-    function normalizePhoneForWa(val){
-      let d = String(val || '').replace(/\D/g, '');
-      if(!d) return '';
-      if (d.startsWith('0')) d = '62' + d.slice(1);
-      if (!d.startsWith('62') && d.startsWith('8')) d = '62' + d;
-      return d;
-    }
-
-    // ===== Event: cari & reset =====
-    document.getElementById('formCari').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const npk = $('#npkCari').value.trim();
-      if(!npk){ toast('NPK wajib diisi', false); return; }
-      showLoading(true);
-      try{
-        const res = await fetch(`${ENDPOINT}?action=getData&npk=${encodeURIComponent(npk)}`);
-        const json = await res.json();
-        if(json.status !== 'success'){ toast(json.message || 'Gagal ambil data', false); return; }
-
-        const processedData = processDataForMasaCicilan(json.data || []);
-        renderTable(processedData);
-
-        $('#infoCari').classList.remove('hidden');
-        $('#infoCari').textContent = `Menampilkan ${json.data?.length || 0} baris untuk NPK: ${npk}`;
-      } catch(err){
-        toast('Error: ' + err.message, false);
-      } finally {
-        showLoading(false);
+    function formatDateToDDMMYYYY(val){
+      if(!val) return "";
+      if(typeof val==='string' && val.includes('/')) {
+        const [d,m,y]=val.split('/');
+        if(d&&m&&y) return `${d.padStart(2,'0')}/${m.padStart(2,'0')}/${y}`;
       }
-    });
-
-    document.getElementById('btnReset').addEventListener('click', ()=>{
-      $('#npkCari').value = '';
-      $('#tbody').innerHTML = '';
-      $('#countRows').textContent = '';
-      $('#infoCari').classList.add('hidden');
-    });
+      const d=new Date(val);
+      if(isNaN(d)) return "";
+      return fmtDDMMYYYY(d);
+    }
 
     // ===== Render tabel =====
     function renderTable(rows){
-      const tb = $('#tbody');
-      tb.innerHTML = '';
+      const tb = $('#tbody'); tb.innerHTML = '';
       $('#countRows').textContent = `${rows.length} baris`;
+
       if(!rows.length){
-        tb.innerHTML = `<tr><td colspan="14" class="px-3 py-6 text-center text-slate-500">Tidak ada data</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="13" class="px-3 py-6 text-center text-slate-500">Tidak ada data</td></tr>`;
         return;
       }
+
       rows.forEach((r, i)=>{
-        const digits = r.notelp_link ? String(r.notelp_link).replace(/^https?:\/\/wa\.me\//,'') : normalizePhoneForWa(r.notelp || '');
-        const waUrl = digits ? `https://wa.me/${digits}` : '';
-        const status = String(r.status || '').toUpperCase();
-        let statusClass = 'border-slate-300 text-slate-600';
-        if(status === 'OK') statusClass = 'border-emerald-300 text-emerald-700';
-        else if(status === 'VERIFIKASI') statusClass = 'border-amber-300 text-amber-700';
-        else if(status === 'NO ACC') statusClass = 'border-rose-300 text-rose-700';
-        else if(status === 'CANCEL') statusClass = 'border-slate-300 text-slate-600';
-        const telDisplay = digits ? (digits.startsWith('62') ? '0' + digits.slice(2) : digits) : '';
-
-        let masaCicilanClass = '';
-        if (r.masaCicilanDisplay.includes('Masih ada angsuran')) {
-          masaCicilanClass = 'text-emerald-600 font-medium';
-        } else if (r.masaCicilanDisplay.includes('Selesai tgl')) {
-          masaCicilanClass = 'text-blue-600';
+        // WhatsApp link (kalau ada r.notelp_link)
+        let telHtml = esc(r.notelp || '');
+        if (r.notelp_link) {
+          telHtml = `<a href="${esc(r.notelp_link)}" target="_blank" rel="noopener" class="whatsapp-link">${esc(r.notelp || '')} <span class="inline-block">📲</span></a>`;
         }
 
-        let pengajuanClass = '';
-        if (r.pengajuanDisplay) {
-          pengajuanClass = 'text-slate-700 font-medium';
+        // Warna masa cicilan
+        let masaHtml = esc(r.masaCicilan || '');
+        if (r.masaCicilan) {
+          const low = r.masaCicilan.toLowerCase();
+          if (low.includes('lunas') || low.includes('selesai')) {
+            masaHtml = `<span class="masa-cicilan-complete">${esc(r.masaCicilan)}</span>`;
+          } else if (low.includes('sisa') || low.includes('masih')) {
+            masaHtml = `<span class="masa-cicilan-active">${esc(r.masaCicilan)}</span>`;
+          }
         }
+
+        // Badge status
+        const st = String(r.status || '').toUpperCase();
+        let stClass = 'border-slate-300 text-slate-600';
+        if (st === 'OK') stClass = 'border-emerald-300 text-emerald-700';
+        else if (st === 'VERIFIKASI') stClass = 'border-amber-300 text-amber-700';
+        else if (st === 'NO ACC') stClass = 'border-rose-300 text-rose-700';
 
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50";
+        tr.className = 'hover:bg-slate-50';
         tr.innerHTML = `
           <td class="px-2 py-2 text-sm text-slate-600">${i+1}</td>
           <td class="px-2 py-2 text-sm">${esc(r.id)}</td>
-          <td class="px-2 py-2 text-sm">${esc(r.tanggal)}</td>
+          <td class="px-2 py-2 text-sm">${esc(formatDateToDDMMYYYY(r.tanggal))}</td>
           <td class="px-2 py-2 text-sm">${esc(r.npk)}</td>
-          <td class="px-2 py-2 text-sm">
-            ${waUrl
-              ? `<a href="${waUrl}" target="_blank" rel="noopener" class="text-gold-600 hover:underline">${esc(telDisplay)}</a>`
-              : `<span class="text-slate-400 italic">-</span>`
-            }
-          </td>
-          <td class="px-2 py-2 text-sm">${esc(r.nama)}</td>
-          <td class="px-2 py-2 text-sm">${esc(r.instalasi)}</td>
-          <td class="px-2 py-2 text-sm">${esc(r.cicilan)}</td>
-          <td class="px-2 py-2 text-sm">${esc(r.tipehp)}</td>
-          <td class="px-2 py-2 text-sm">${esc(r.alamat)}</td>
-          <td class="px-2 py-2 text-sm">${esc(r.keterangan)}</td>
-          <td class="px-2 py-2 text-sm">
-            <span class="badge ${statusClass}">${esc(status || '')}</span>
-          </td>
-          <td class="px-2 py-2 text-sm ${pengajuanClass}">${esc(r.pengajuanDisplay)}</td>
-          <td class="px-2 py-2 text-sm ${masaCicilanClass}">${esc(r.masaCicilanDisplay)}</td>
+          <td class="px-2 py-2 text-sm">${esc(r.nama || '')}</td>
+          <td class="px-2 py-2">${telHtml}</td>
+          <td class="px-2 py-2 text-sm">${esc(r.instalasi || '')}</td>
+          <td class="px-2 py-2 text-sm">${esc(r.cicilan || '')}</td>
+          <td class="px-2 py-2 text-sm">${esc(r.tipehp || '')}</td>
+          <td class="px-2 py-2 text-sm">${esc(r.alamat || '')}</td>
+          <td class="px-2 py-2 text-sm">${esc(r.keterangan || '')}</td>
+          <td class="px-2 py-2 text-sm"><span class="badge ${stClass}">${esc(st)}</span></td>
+          <td class="px-2 py-2 text-sm">${masaHtml}</td>
         `;
         tb.appendChild(tr);
       });
     }
+
+    // ===== Load data =====
+    async function loadDataForUser(uname){
+      $('#npkLabel').textContent = uname;
+      $('#loggedAs').textContent = 'Masuk sebagai: ' + uname;
+      $('#loggedAs').classList.remove('hidden');
+
+      showLoading(true);
+      try {
+        const url = `${ENDPOINT}?action=getData&npk=${encodeURIComponent(uname)}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.status !== 'success') {
+          toast(json.message || 'Gagal memuat data', false);
+          renderTable([]);
+          return;
+        }
+        renderTable(json.data || []);
+      } catch (err) {
+        toast('Error: ' + err.message, false);
+        renderTable([]);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // ===== Auto-run saat halaman dimuat =====
+    document.addEventListener('DOMContentLoaded', async () => {
+      const uname = getLoggedUsername();
+      if (!uname) {
+        toast('Tidak ada sesi login. Silakan kembali ke halaman login.', false);
+        $('#infoNote').textContent = 'Sesi tidak ditemukan. Kembali ke menu utama untuk login.';
+        $('#npkLabel').textContent = '-';
+        renderTable([]);
+        return;
+      }
+      await loadDataForUser(uname);
+    });
   </script>
 </body>
 </html>
